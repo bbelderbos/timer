@@ -1,25 +1,11 @@
-# from collections import Counter
-from typing import Counter
-
+from collections import Counter
 from datetime import datetime
 from typing import Optional
 
 from decouple import config
-from sqlmodel import Field, SQLModel, create_engine, Session, select
+from sqlmodel import SQLModel, create_engine, Session, select
 
-
-class Activity(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    name: str
-    start: datetime
-    end: Optional[datetime] = None
-
-    @property
-    def duration_in_seconds(self) -> int:
-        if self.end is None:
-            return 0
-        return (self.end - self.start).seconds
-
+from model import Activity
 
 db_url = config("DATABASE_URL")
 debug = config("DEBUG", default=False)
@@ -52,6 +38,7 @@ def stop_activity(name: str) -> None:
             session.add(row)
         session.commit()
 
+
 def cancel_activity(name: str) -> None:
     with Session(engine) as session:
         statement = select(Activity).where(
@@ -64,8 +51,8 @@ def cancel_activity(name: str) -> None:
         session.commit()
 
 
-def get_activities(name: Optional[str]) -> dict[str, int]:
-    activities = Counter()
+def get_activities(name: Optional[str]) -> Counter[str]:
+    activities: Counter[str] = Counter()
 
     with Session(engine) as session:
         statement = select(Activity)
@@ -78,6 +65,21 @@ def get_activities(name: Optional[str]) -> dict[str, int]:
             activities[row.name] += row.duration_in_seconds
 
     return activities
+
+
+def remove_activities(name: str, all_entries: bool = False) -> None:
+    with Session(engine) as session:
+        statement = select(Activity).where(
+            Activity.name == name,
+        )
+
+        results = session.exec(statement).all()
+        if not all_entries:
+            results = [results[-1]]
+
+        for row in results:
+            session.delete(row)
+        session.commit()
 
 
 if __name__ == "__main__":

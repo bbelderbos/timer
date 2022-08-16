@@ -1,13 +1,13 @@
-from collections import Counter
-from datetime import datetime
 from typing import Optional
 
-from sqlmodel import Session, select
 from sqlmodel.sql.expression import Select, SelectOfScalar
 import typer
 
-from db import Activity, engine, add_activity, stop_activity, cancel_activity, get_activities
+from db import (
+    add_activity, stop_activity, cancel_activity,
+    get_activities, remove_activities)
 
+# https://github.com/tiangolo/sqlmodel/issues/189
 SelectOfScalar.inherit_cache = True  # type: ignore
 Select.inherit_cache = True  # type: ignore
 
@@ -56,18 +56,7 @@ def remove(name: str, all_entries: bool = False):
     Remove timer for an activity, last or all entries
     """
     print("remove", name, f"{all_entries=}")
-    with Session(engine) as session:
-        statement = select(Activity).where(
-            Activity.name == name,
-        )
-
-        results = session.exec(statement)
-        if not all_entries:
-            results = [results[-1]]
-
-        for row in results:
-            session.delete(row)
-        session.commit()
+    remove_activities(name, all_entries)
 
 
 if __name__ == "__main__":
