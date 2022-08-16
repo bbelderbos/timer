@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional, Counter
+from typing import Counter, Optional
 
 from decouple import config
 from sqlmodel import SQLModel, create_engine, Session, select
@@ -50,8 +50,8 @@ def cancel_activity(name: str) -> None:
         session.commit()
 
 
-def get_activities(name: Optional[str]) -> dict[str, int]:
-    activities = Counter()
+def get_activities(name: Optional[str]) -> Counter[str]:
+    activities: Counter[str] = Counter()
 
     with Session(engine) as session:
         statement = select(Activity)
