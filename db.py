@@ -72,7 +72,7 @@ def remove_activities(name: str, all_entries: bool = False) -> None:
             Activity.name == name,
         )
 
-        results = session.exec(statement)
+        results = session.exec(statement).all()
         if not all_entries:
             results = [results[-1]]
 
