@@ -1,12 +1,11 @@
-from collections import Counter
-from datetime import datetime
 from typing import Optional
 
-from sqlmodel import Session, select
 from sqlmodel.sql.expression import Select, SelectOfScalar
 import typer
 
-from db import Activity, engine, add_activity, stop_activity, cancel_activity, get_activities, remove_activities
+from db import (
+    add_activity, stop_activity, cancel_activity,
+    get_activities, remove_activities)
 
 SelectOfScalar.inherit_cache = True  # type: ignore
 Select.inherit_cache = True  # type: ignore
