@@ -52,6 +52,7 @@ def stop_activity(name: str) -> None:
             session.add(row)
         session.commit()
 
+
 def cancel_activity(name: str) -> None:
     with Session(engine) as session:
         statement = select(Activity).where(
@@ -78,6 +79,21 @@ def get_activities(name: Optional[str]) -> dict[str, int]:
             activities[row.name] += row.duration_in_seconds
 
     return activities
+
+
+def remove_activities(name: str, all_entries: bool = False) -> None:
+    with Session(engine) as session:
+        statement = select(Activity).where(
+            Activity.name == name,
+        )
+
+        results = session.exec(statement)
+        if not all_entries:
+            results = [results[-1]]
+
+        for row in results:
+            session.delete(row)
+        session.commit()
 
 
 if __name__ == "__main__":
