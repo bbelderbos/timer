@@ -1,5 +1,6 @@
+from collections import Counter
 from datetime import datetime
-from typing import Counter, Optional
+from typing import Optional
 
 from decouple import config
 from sqlmodel import SQLModel, create_engine, Session, select
