@@ -1,25 +1,10 @@
-# from collections import Counter
-from typing import Counter
-
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Counter
 
 from decouple import config
-from sqlmodel import Field, SQLModel, create_engine, Session, select
+from sqlmodel import SQLModel, create_engine, Session, select
 
-
-class Activity(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    name: str
-    start: datetime
-    end: Optional[datetime] = None
-
-    @property
-    def duration_in_seconds(self) -> int:
-        if self.end is None:
-            return 0
-        return (self.end - self.start).seconds
-
+from model import Activity
 
 db_url = config("DATABASE_URL")
 debug = config("DEBUG", default=False)
