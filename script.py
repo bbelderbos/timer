@@ -7,6 +7,7 @@ from db import (
     add_activity, stop_activity, cancel_activity,
     get_activities, remove_activities)
 
+# https://github.com/tiangolo/sqlmodel/issues/189
 SelectOfScalar.inherit_cache = True  # type: ignore
 Select.inherit_cache = True  # type: ignore
 
