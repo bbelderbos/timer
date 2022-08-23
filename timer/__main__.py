@@ -67,11 +67,12 @@ def show(name: Optional[str] = typer.Argument(None)):
     table = Table(title=title)
 
     table.add_column("Name", style="cyan")
-    table.add_column("Total", style="magenta")
+    table.add_column("Minutes", style="magenta")
 
     activities = get_activities(name)
-    for name, total in activities.items():
-        table.add_row(name, str(total))
+    for name, total_seconds in activities.items():
+        total_minutes = round(total_seconds / 60, 2)
+        table.add_row(name, str(total_minutes))
 
     console.print(table)
 
