@@ -3,9 +3,9 @@ from datetime import datetime
 from typing import Optional
 
 from decouple import config
-from sqlmodel import SQLModel, create_engine, Session, select
+from sqlmodel import Session, SQLModel, create_engine, select
 
-from model import Activity
+from .model import Activity
 
 db_url = config("DATABASE_URL")
 debug = config("DEBUG", default=False)
@@ -17,20 +17,25 @@ def create_tables():
 
 
 def add_activity(name: str) -> None:
-    activity = Activity(
-        name=name,
-        start=datetime.now()
-    )
+    activity = Activity(name=name, start=datetime.now())
     with Session(engine) as session:
         session.add(activity)
         session.commit()
 
 
+def get_number_of_activities_in_transit(name: str) -> int:
+    with Session(engine) as session:
+        statement = select(Activity).where(
+            Activity.name == name, Activity.end == None  # noqa E711
+        )
+        results = session.exec(statement)
+        return len(results.fetchall())
+
+
 def stop_activity(name: str) -> None:
     with Session(engine) as session:
         statement = select(Activity).where(
-            Activity.name == name,
-            Activity.end == None  # noqa E711
+            Activity.name == name, Activity.end == None  # noqa E711
         )
         results = session.exec(statement)
         for row in results:
@@ -42,8 +47,7 @@ def stop_activity(name: str) -> None:
 def cancel_activity(name: str) -> None:
     with Session(engine) as session:
         statement = select(Activity).where(
-            Activity.name == name,
-            Activity.end == None  # noqa E711
+            Activity.name == name, Activity.end == None  # noqa E711
         )
         results = session.exec(statement)
         for row in results:
@@ -51,7 +55,7 @@ def cancel_activity(name: str) -> None:
         session.commit()
 
 
-def get_activities(name: Optional[str]) -> Counter[str]:
+def get_activities(name: Optional[str]) -> dict[str, float]:
     activities: Counter[str] = Counter()
 
     with Session(engine) as session:
@@ -62,9 +66,9 @@ def get_activities(name: Optional[str]) -> Counter[str]:
             )
         results = session.exec(statement)
         for row in results:
-            activities[row.name] += row.duration_in_seconds
+            activities[row.name] += row.duration_in_minutes
 
-    return activities
+    return {act: round(total, 2) for act, total in activities.items()}
 
 
 def remove_activities(name: str, all_entries: bool = False) -> None:
