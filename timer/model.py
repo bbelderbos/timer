@@ -11,8 +11,7 @@ class Activity(SQLModel, table=True):
     end: Optional[datetime] = None
 
     @property
-    def duration_in_minutes(self) -> float:
+    def duration_in_seconds(self) -> int:
         if self.end is None:
             return 0
-        minutes = (self.end - self.start).seconds / 60
-        return minutes
+        return (self.end - self.start).seconds

@@ -55,7 +55,7 @@ def cancel_activity(name: str) -> None:
         session.commit()
 
 
-def get_activities(name: Optional[str]) -> dict[str, float]:
+def get_activities(name: Optional[str]) -> Counter[str]:
     activities: Counter[str] = Counter()
 
     with Session(engine) as session:
@@ -66,9 +66,9 @@ def get_activities(name: Optional[str]) -> dict[str, float]:
             )
         results = session.exec(statement)
         for row in results:
-            activities[row.name] += row.duration_in_minutes
+            activities[row.name] += row.duration_in_seconds
 
-    return {act: round(total, 2) for act, total in activities.items()}
+    return activities
 
 
 def remove_activities(name: str, all_entries: bool = False) -> None:
