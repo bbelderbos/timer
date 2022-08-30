@@ -12,6 +12,7 @@ from .db import (
     remove_activities,
     stop_activity,
 )
+from .exceptions import DuplicateTimerException
 
 app = typer.Typer()
 console = Console()
@@ -23,13 +24,11 @@ def start(name: str, interactive: bool = False):
     """
     Start timer for activity
     """
-    num_activities = get_number_of_activities_in_transit(name)
-    if num_activities > 0:
-        err_console.print(
-            f"Cannot start another activity for {name}, " f"{num_activities} in transit"
-        )
+    try:
+        add_activity(name)
+    except DuplicateTimerException:
+        err_console.print("Cannot start another activity, one is already in transit")
         return
-    add_activity(name)
 
 
 @app.command()
